@@ -1,5 +1,6 @@
 import re
 
+import joblib
 from sklearn.ensemble import RandomForestClassifier
 
 COMPLEX_KEYWORDS = ["analyze", "evaluate", "compare", "argue", "recommend"]
@@ -27,3 +28,11 @@ def train(examples: list[dict]) -> RandomForestClassifier:
 def predict(prompt: str, model) -> int:
     features = extract_features(prompt)
     return int(model.predict([features])[0])
+
+
+def save_model(model, path: str) -> None:
+    joblib.dump(model, path)
+
+
+def load_model(path: str) -> RandomForestClassifier:
+    return joblib.load(path)
