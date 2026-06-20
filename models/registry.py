@@ -36,4 +36,11 @@ MODELS: dict[str, ModelConfig] = {
         cost_per_output_token=0.000004,
         quality_tier="low",
     ),
+    "claude-sonnet-4-6": ModelConfig(
+        model_id="claude-sonnet-4-6",
+        display_name="Claude Sonnet 4.6",
+        cost_per_input_token=0.000003,
+        cost_per_output_token=0.000015,
+        quality_tier="high",
+    ),
 }

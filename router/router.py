@@ -10,8 +10,8 @@ _CLASSIFIER = load_model(str(_MODEL_PATH))
 
 _TIER_MAP = {
     1: "claude-haiku-4-5-20251001",
-    2: "gpt-4o-mini",
-    3: "gpt-4o",
+    2: "claude-haiku-4-5-20251001",
+    3: "claude-sonnet-4-6",
 }
 
 

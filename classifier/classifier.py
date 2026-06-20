@@ -3,7 +3,7 @@ import re
 import joblib
 from sklearn.ensemble import RandomForestClassifier
 
-COMPLEX_KEYWORDS = ["analyze", "evaluate", "compare", "argue", "recommend"]
+COMPLEX_KEYWORDS = ["analyze", "evaluate", "compare", "argue", "recommend", "summarize", "pros and cons", "explain why"]
 SIMPLE_KEYWORDS = ["translate", "convert", "what is", "list"]
 
 
