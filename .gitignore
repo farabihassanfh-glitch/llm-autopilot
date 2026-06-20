@@ -1,4 +1,4 @@
 .env
 __pycache__/
 *.pyc
-classifier/model.joblib
+!classifier/model.joblib
