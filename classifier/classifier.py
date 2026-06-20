@@ -1,0 +1,29 @@
+import re
+
+from sklearn.ensemble import RandomForestClassifier
+
+COMPLEX_KEYWORDS = ["analyze", "evaluate", "compare", "argue", "recommend"]
+SIMPLE_KEYWORDS = ["translate", "convert", "what is", "list"]
+
+
+def extract_features(prompt: str) -> list:
+    lower = prompt.lower()
+    length = len(prompt)
+    word_count = len(prompt.split())
+    sentence_count = max(1, len(re.findall(r"[.!?]+", prompt)))
+    has_complex = int(any(kw in lower for kw in COMPLEX_KEYWORDS))
+    has_simple = int(any(kw in lower for kw in SIMPLE_KEYWORDS))
+    return [length, word_count, sentence_count, has_complex, has_simple]
+
+
+def train(examples: list[dict]) -> RandomForestClassifier:
+    X = [extract_features(e["prompt"]) for e in examples]
+    y = [e["tier"] for e in examples]
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X, y)
+    return model
+
+
+def predict(prompt: str, model) -> int:
+    features = extract_features(prompt)
+    return int(model.predict([features])[0])
