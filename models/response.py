@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -9,3 +9,4 @@ class LLMResponse:
     output_tokens: int
     cost_usd: float
     latency_ms: float
+    complexity_tier: int | None = field(default=None)
