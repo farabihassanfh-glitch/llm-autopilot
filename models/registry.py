@@ -10,6 +10,9 @@ class ModelConfig:
     cost_per_output_token: float
     quality_tier: Literal["low", "medium", "high"]
 
+    def estimate_cost(self, input_tokens: int, output_tokens: int) -> float:
+        return (input_tokens * self.cost_per_input_token) + (output_tokens * self.cost_per_output_token)
+
 
 MODELS: dict[str, ModelConfig] = {
     "gpt-4o": ModelConfig(
