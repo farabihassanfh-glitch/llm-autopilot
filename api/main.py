@@ -56,31 +56,38 @@ async def completions(request: CompletionRequest):
 async def savings_dashboard():
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
+
         async with db.execute(
-            "SELECT * FROM requests ORDER BY timestamp DESC"
+            "SELECT COUNT(*) as n, SUM(cost_usd) as cost, "
+            "SUM(input_tokens * ? + output_tokens * ?) as sonnet_cost "
+            "FROM requests",
+            (SONNET_PRICE_INPUT, SONNET_PRICE_OUTPUT),
+        ) as cur:
+            agg = await cur.fetchone()
+
+        async with db.execute(
+            "SELECT complexity_tier, COUNT(*) as n FROM requests GROUP BY complexity_tier"
+        ) as cur:
+            tier_rows = await cur.fetchall()
+
+        async with db.execute(
+            "SELECT * FROM requests ORDER BY timestamp DESC LIMIT 200"
         ) as cur:
             rows = await cur.fetchall()
 
-    total_requests = len(rows)
-    total_cost = sum(r["cost_usd"] for r in rows)
-    total_if_sonnet = sum(
-        r["input_tokens"] * SONNET_PRICE_INPUT + r["output_tokens"] * SONNET_PRICE_OUTPUT
-        for r in rows
-    )
+    total_requests = agg["n"] or 0
+    total_cost = agg["cost"] or 0.0
+    total_if_sonnet = agg["sonnet_cost"] or 0.0
     total_saved = total_if_sonnet - total_cost
     savings_pct = (total_saved / total_if_sonnet * 100) if total_if_sonnet > 0 else 0.0
 
-    tier_counts = {{1: 0, 2: 0, 3: 0}}
-    model_counts = {{}}
-    for r in rows:
-        t = r["complexity_tier"]
-        if t in tier_counts:
-            tier_counts[t] += 1
-        m = r["model_id"]
-        model_counts[m] = model_counts.get(m, 0) + 1
+    tier_counts = {1: 0, 2: 0, 3: 0}
+    for r in tier_rows:
+        if r["complexity_tier"] in tier_counts:
+            tier_counts[r["complexity_tier"]] = r["n"]
 
     tier_bar = ""
-    if total_requests:
+    if total_requests > 0:
         for tier, label, color in [
             (1, "Tier 1 · Haiku", "#6366f1"),
             (2, "Tier 2 · GPT-4o Mini", "#f59e0b"),
