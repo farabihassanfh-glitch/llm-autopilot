@@ -1,9 +1,5 @@
 fastapi
 uvicorn[standard]
 aiosqlite
-scikit-learn
-joblib
 openai
 anthropic
-streamlit
-pandas
