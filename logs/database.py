@@ -7,8 +7,7 @@ import aiosqlite
 
 from models.response import LLMResponse
 
-# Use /data volume on Railway, fall back to logs/ locally
-_data_dir = Path("/data") if Path("/data").exists() else Path("logs")
+_data_dir = Path(os.environ.get("DB_DIR", "logs"))
 _data_dir.mkdir(parents=True, exist_ok=True)
 DB_PATH = str(_data_dir / "requests.db")
 
