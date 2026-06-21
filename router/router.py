@@ -1,16 +1,12 @@
 from pathlib import Path
 
 from classifier.classifier import load_model, predict
-from classifier.classifier import _rule_predict
 from models.client import send_request
 from models.registry import MODELS
 from models.response import LLMResponse
 
 _MODEL_PATH = Path(__file__).parent.parent / "classifier" / "model.joblib"
-try:
-    _CLASSIFIER = load_model(str(_MODEL_PATH))
-except Exception:
-    _CLASSIFIER = None
+_CLASSIFIER = load_model(str(_MODEL_PATH))
 
 _TIER_MAP = {
     1: "claude-haiku-4-5-20251001",
@@ -20,7 +16,7 @@ _TIER_MAP = {
 
 
 async def route(prompt: str) -> LLMResponse:
-    tier = predict(prompt, _CLASSIFIER) if _CLASSIFIER is not None else _rule_predict(prompt)
+    tier = predict(prompt, _CLASSIFIER)
     model_id = _TIER_MAP[tier]
     model_config = MODELS[model_id]
     response = await send_request(prompt, model_config)
