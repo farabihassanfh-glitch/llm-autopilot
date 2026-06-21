@@ -72,6 +72,25 @@ Response:
 
 ---
 
+## Integration
+
+Drop-in replacement for any LLM call:
+
+```python
+# Before
+response = openai.chat.completions.create(model="gpt-4o", ...)
+
+# After — point to your API instead
+response = requests.post(
+    "https://llm-autopilot-production.up.railway.app/v1/completions",
+    json={"prompt": your_prompt}
+)
+```
+
+The right model is chosen automatically. No code changes beyond the URL.
+
+---
+
 ## Run It Yourself
 
 ```bash
