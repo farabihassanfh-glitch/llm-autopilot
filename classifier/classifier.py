@@ -23,6 +23,20 @@ def extract_features(prompt: str) -> list:
     return [length, word_count, sentence_count, has_complex, has_simple, has_medium]
 
 
+def _rule_predict(prompt: str) -> int:
+    lower = prompt.lower()
+    word_count = len(prompt.split())
+    if any(kw in lower for kw in COMPLEX_KEYWORDS) and word_count > 15:
+        return 3
+    if any(kw in lower for kw in MEDIUM_KEYWORDS):
+        return 2
+    if any(kw in lower for kw in SIMPLE_KEYWORDS) or word_count <= 12:
+        return 1
+    if word_count > 20:
+        return 2
+    return 1
+
+
 def train(examples: list[dict]):
     X = [extract_features(e["prompt"]) for e in examples]
     y = [e["tier"] for e in examples]
