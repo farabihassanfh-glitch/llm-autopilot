@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 classifier/model.joblib
 logs/requests.db
+cloudflared
