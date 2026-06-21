@@ -51,6 +51,7 @@ async def completions(request: CompletionRequest):
     )
 
 
+@app.get("/dashboard", response_class=HTMLResponse)
 @app.get("/savings", response_class=HTMLResponse)
 async def savings_dashboard():
     async with aiosqlite.connect(DB_PATH) as db:
