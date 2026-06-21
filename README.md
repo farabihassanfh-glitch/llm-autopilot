@@ -8,9 +8,7 @@ Automatically routes every prompt to the cheapest model that can handle it — w
 
 **73.3% cost reduction** compared to sending every request to Claude Sonnet.
 
-Simple factual questions go to Claude Haiku ($0.000051 per call). Complex reasoning goes to GPT-4o. Everything in between goes to GPT-4o Mini. The savings add up fast.
-
-![Dashboard](https://llm-autopilot-production.up.railway.app/dashboard)
+Simple factual questions go to Claude Haiku. Complex reasoning goes to GPT-4o. Everything in between goes to GPT-4o Mini. The savings add up fast.
 
 ---
 
@@ -20,14 +18,14 @@ Simple factual questions go to Claude Haiku ($0.000051 per call). Complex reason
 Request
    │
    ▼
-Classifier          ← RandomForest trained on 207 labeled prompts
-   │                   extracts: length, word count, sentences,
-   │                   presence of complex/simple keywords
+Classifier          ← RandomForestClassifier trained on 207 labeled prompts
+   │                   features: length, word count, sentence count,
+   │                   complex/medium/simple keyword signals
    ▼
-Router              ← maps predicted tier to the right model
+Router              ← maps predicted tier to the cheapest capable model
    │
    ▼
-LLM API             ← Anthropic or OpenAI depending on tier
+LLM API             ← Anthropic (Haiku) or OpenAI (GPT-4o Mini / GPT-4o)
    │
    ▼
 Response + Logging  ← returns text, model, cost, latency
@@ -42,11 +40,11 @@ The classifier assigns every prompt a complexity tier:
 
 | Tier | Type | Model | Example |
 |------|------|-------|---------|
-| 1 | Simple facts, translations, reformatting | **Claude Haiku** | "What is the capital of France?" |
-| 2 | Summarization, classification, structured analysis | **GPT-4o Mini** | "Summarize this article in 3 bullet points." |
-| 3 | Multi-step reasoning, argumentation, nuanced judgment | **GPT-4o** | "Evaluate the trade-offs between REST and GraphQL for a high-read workload." |
+| 1 | Simple facts, translations, reformatting | **Claude Haiku 4.5** | "What is the capital of France?" |
+| 2 | Summarization, classification, structured analysis | **GPT-4o Mini** | "Summarize the pros and cons of remote work." |
+| 3 | Multi-step reasoning, argumentation, nuanced judgment | **GPT-4o** | "Analyze the ethical trade-offs of AI in criminal sentencing and argue for a policy recommendation." |
 
-The classifier is a `RandomForestClassifier` trained on 207 hand-labeled examples. It runs locally in milliseconds before every API call — no extra network hop.
+The classifier is a `RandomForestClassifier` trained on 207 hand-labeled examples. It runs in milliseconds before every API call — no extra network hop, no added latency.
 
 ---
 
@@ -68,7 +66,7 @@ Response:
   "model_id": "claude-haiku-4-5-20251001",
   "complexity_tier": 1,
   "cost_usd": 0.0000512,
-  "latency_ms": 672.93
+  "latency_ms": 1013.3
 }
 ```
 
@@ -80,14 +78,13 @@ Response:
 # 1. Clone
 git clone https://github.com/farabihassanfh-glitch/llm-autopilot
 cd llm-autopilot
-git checkout claude/admiring-dijkstra-w5x0ds
 
 # 2. Install dependencies
 pip install -r requirements.txt
 
 # 3. Set API keys
-cp .env.example .env
-# edit .env and fill in OPENAI_API_KEY and ANTHROPIC_API_KEY
+export ANTHROPIC_API_KEY=your_key_here
+export OPENAI_API_KEY=your_key_here
 
 # 4. Train the classifier
 python -m classifier.train
@@ -103,9 +100,9 @@ open http://localhost:8000/dashboard
 
 ## Tech Stack
 
-- **FastAPI** — REST API and HTML dashboard
-- **Anthropic SDK** — Claude Haiku for tier 1 prompts
-- **OpenAI SDK** — GPT-4o Mini (tier 2) and GPT-4o (tier 3)
+- **FastAPI** — async REST API and live HTML dashboard
 - **scikit-learn** — RandomForestClassifier for prompt complexity detection
+- **Anthropic SDK** — Claude Haiku 4.5 for tier 1 prompts
+- **OpenAI SDK** — GPT-4o Mini (tier 2) and GPT-4o (tier 3)
 - **aiosqlite** — async SQLite for request logging
-- **Railway** — cloud deployment
+- **Railway** — cloud deployment with nixpacks
