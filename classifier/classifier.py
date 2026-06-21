@@ -1,6 +1,4 @@
 import re
-import joblib
-from sklearn.ensemble import RandomForestClassifier
 
 COMPLEX_KEYWORDS = ["analyze", "evaluate", "compare", "argue", "recommend",
                     "assess", "critique", "design", "diagnose", "reason",
@@ -38,6 +36,7 @@ def _rule_predict(prompt: str) -> int:
 
 
 def train(examples: list[dict]):
+    from sklearn.ensemble import RandomForestClassifier
     X = [extract_features(e["prompt"]) for e in examples]
     y = [e["tier"] for e in examples]
     model = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -51,8 +50,10 @@ def predict(prompt: str, model) -> int:
 
 
 def save_model(model, path: str) -> None:
+    import joblib
     joblib.dump(model, path)
 
 
 def load_model(path: str):
+    import joblib
     return joblib.load(path)
